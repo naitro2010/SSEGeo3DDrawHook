@@ -1,18 +1,17 @@
 #include "Hooks.h"
 namespace plugin {
-    void Hooks::quitGame() {
-        logger::info("Game quitting");
-        origQuitGame();
+    void Hooks::Draw(uint64_t arg1,uint32_t arg2,uint8_t arg3) {
+        origDraw(arg1,arg2,arg3);
+        origDraw(arg1,arg2,arg3);
     }
 
-    void Hooks::installQuitGameHook() {
-        REL::RelocationID hookFuncAddr = REL::RelocationID(35545, 36544);
-        int hookFuncOffset = REL::Relocate(0x35, 0x1AE);
-        std::uintptr_t hook = hookFuncAddr.address() + hookFuncOffset;
+    void Hooks::installDrawHook() {
+        
+        
+        std::uintptr_t hook = REL::Offset(0x64447d).address();
         auto& trampoline = SKSE::GetTrampoline();
         trampoline.create(64);
-        origQuitGame = trampoline.write_call<5>(hook, quitGame);
-        logger::info("QuitGame hook installed at address 0x{:X} (id {} + 0x{:X})", hookFuncAddr.offset(), hookFuncAddr.id(),
-                     hookFuncOffset);
+        origDraw = trampoline.write_call<5>(hook, Draw);
+        logger::info("Draw hook installed at address 0x{:X}",REL::Offset(0x64447d).address());
     }
 }  // namespace plugin

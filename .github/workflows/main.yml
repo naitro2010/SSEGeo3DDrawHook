@@ -1,0 +1,50 @@
+name: SSEGeo3DDrawHook
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      versionString:
+        description: 'Version String'
+        type: string
+env:
+  BUILD_TYPE: Release
+  PROJECT_NAME: SSEGeo3DDrawHook
+  PROJECT_LONG_NAME: SKEE64 Geo3D fix for Skyrim
+jobs:
+  build-skse:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with: 
+          submodules: recursive
+      - uses: lukka/get-cmake@latest
+      
+      - name: vcpkg cache
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: "76d153790caf0592fce8fc4484aa6db18c7d00d4"
+      - name: Run CMake
+        uses: lukka/run-cmake@v10
+        with:
+          cmakeListsTxtPath: ${{ github.workspace }}/CMakeLists.txt
+          configurePreset: default
+          configurePresetAdditionalArgs: "['-DCMAKE_TOOLCHAIN_FILE:STRING=C:/vcpkg/scripts/buildsystems/vcpkg.cmake']"
+          buildPreset: release
+          buildPresetAdditionalArgs: "['--config Release']"
+      - name: Move binaries
+        run: |
+          cd ${{github.workspace}}/build/bin/release
+          mkdir artifacts
+          cd artifacts
+          mkdir SKSE
+          mkdir SKSE/Plugins
+          move ../SSEGeo3DDrawHook.dll SKSE/Plugins
+          move ../SSEGeo3DDrawHook.pdb SKSE/Plugins
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: SSEGeo3DDrawHook
+          path: build/bin/release/artifacts
+          retention-days: 90
