@@ -1,6 +1,8 @@
 ######## target
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
+find_path(DETOURS_INCLUDE_DIRS "detours/detours.h")
+find_library(DETOURS_LIBRARY detours REQUIRED)
 
 find_path(CommonLibSSEPath "include/REL/Relocation.h"
                 PATHS   "${CMAKE_SOURCE_DIR}/extern/CommonLibSSE"
@@ -40,8 +42,9 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/cmake>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/include>
+        ${DETOURS_INCLUDE_DIRS}
         $<INSTALL_INTERFACE:src>)
-
+target_link_libraries(${PROJECT_NAME} PRIVATE ${DETOURS_LIBRARY})
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -1,4 +1,8 @@
+#pragma warning(disable: 4100 4189)
 #include "Hooks.h"
+#include <Psapi.h>
+#include <detours/detours.h>
+#include <windows.h>
 namespace plugin {
     uint64_t (*orig_realdrawfn)(uint64_t t, float time) = nullptr;
     uint64_t RealDrawFunction(uint64_t t, float time)
